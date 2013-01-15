@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Game</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    </head>
+    <body>
+        <div class="wrapper">
+            <canvas class="game"></canvas>
+        </div>
+        <script>
+            window.config = {
+                require: [
+                    'Game',
+                    'Canvas',
+                    'Dom'
+                ],
+                ready: function() {
+                    var dom = new Dom(window.document);
+                    new Game(
+                        dom,
+                        dom.select('.wrapper'),
+                        {} // options to go here
+                    );
+                }
+            }
+        </script>
+        <script src="loader.js"></script>
+    </body>
+</html>
