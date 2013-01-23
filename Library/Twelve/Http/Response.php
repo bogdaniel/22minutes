@@ -35,83 +35,115 @@ namespace Twelve\Http;
  */
 class Response
 {
-    public
-        $request;
-    protected
-        $_session;
+	const OK 				= 200; // The Request has succeded.
+	const CREATED 			= 201; // The Reuqest has been fulfielled and resulted in a new resource being created.
+	const NO_CONTENT 		= 204; // The Server has fulfilled the reuqest but does not need to return an entity-body.
+	const MOVED_PERM 		= 301;
+	const FOUND 			= 302;
+	const NOT_MODIFIED 		= 304;
+	const TEMP_REDERICT 	= 307;
+	const BAD_REQUEST 		= 400; // The Request could no be understood by the server due to malformed syntax.
+	const UNAUTHORIZED 		= 401; // The Request requires user authentication.
+	const FORBIDDEN 		= 403; // The Server understood the request, but is refusing to fulfill it.
+	const NOT_FOUND 		= 404; // The Server has not found anything matching the Request-URI
+	const NOT_ALLOWED 		= 405; // The Method specified in the Request-Line is not allowed for the resource identified by the Request-URI
+	const NOT_ACCEPTABLE 	= 406; // The Server can only generate a response that is not accepted by the client.
+	const REQUEST_TIMEOUT 	= 408;
+	const SERVER_ERROR 		= 500;
+	const NOT_IMPLEMENTED 	= 501; // The Server does not support the functionality required to fulfill the request.
+	const UNAVAILABLE 		= 503;
+	const TIMEOUT 			= 504;
 
-    public function __construct(Request $request = null)
+	protected $statusCodes =
+			[
+		        self::OK              => 'HTTP/1.1 200 OK',
+		        self::CREATED         => 'HTTP/1.1 201 Created',
+		        self::NO_CONTENT      => 'HTTP/1.1 204 No Content',
+		        self::MOVED_PERM      => 'HTTP/1.1 301 Moved Permanently',
+		        self::FOUND           => 'HTTP/1.1 302 Found',
+		        self::NOT_MODIFIED    => 'HTTP/1.1 304 Not Modified',
+		        self::TEMP_REDERICT   => 'HTTP/1.1 307 Temporary Redirect',
+		        self::BAD_REQUEST     => 'HTTP/1.1 400 Bad Request',
+		        self::UNAUTHORIZED    => 'HTTP/1.1 401 Unauthorized',
+		        self::FORBIDDEN       => 'HTTP/1.1 403 Forbidden',
+		        self::NOT_FOUND       => 'HTTP/1.1 404 Not Found',
+		        self::NOT_ALLOWED     => 'HTTP/1.1 405 Method Not Allowed',
+		        self::NOT_ACCEPTABLE  => 'HTTP/1.1 406 Not Acceptable',
+		        self::REQUEST_TIMEOUT => 'HTTP/1.1 408 Request Timeout',
+		        self::SERVER_ERROR    => 'HTTP/1.1 500 Internal Server Error',
+		        self::NOT_IMPLEMENTED => 'HTTP/1.1 501 Not Implemented',
+		        self::UNAVAILABLE     => 'HTTP/1.1 503 Service Unavailable',
+		        self::TIMEOUT         => 'HTTP/1.1 504 Gateway Timeout'
+			];
+	public $headers = [];
+	public $code = '200';
+	public function addHeader($string)
+	{
+		$this->headers[] = $string;
+	}
+
+	public function getHeaders()
+	{
+		return $this->headers;
+	}
+    public function setCode($code)
     {
-        if(isset($request))
-            $this->request = $request;
+        $this->code = $code;            
+        return $this;
     }
-    public function header($headerKey, $headerReplace = null)
-    {
-        header($headerKey, $headerReplace);
-    }
-    public function cookie($name, $value, $expires = 0, $domain = null, $path = null, $isSecure = false, $httponly = false)
-    {
-        if(headers_sent() && (bool) $this->outputBuffering === false || strtolower($this->outputBuffering) == 'off')
+	public function sendHeaders()
+	{
+        $this->addHeader($this->statusCodes[$this->code]);
+        $this->addHeader('Status: ' . $this->code);
 
-            return false;
-        if($null === $expires)
-            $expire = time() + (3600 * 24 * 30);
-        if(substr($domain, 0, 1) != '.')
-            $domain = '.' . $domain;
-
-        $port = strpos($domain, ':');
-        if($port != false) $domain =
-            substr($domain, 0, $port);
-        header(
-            'Set-Cookie: ' . rawurlencode($name) , '=' . rawurlencode($value)
-            . (empty($domain) ? '' : '; $Domain =' . $domain)
-            . (empty($expires) ? '' : '; Max-$Age=' . $expires)
-            . (empty($path) ? '' : '; Path=' . $path)
-            . (!$isSecure ? '' : '; Secure')
-            . (!$httponly ? '' : '; HttpOnly'), false);
-
-        return true;
-    }
+		$this->headers = $this->getHeaders();
+		for($i = 0; $i < count($this->headers); $i++)
+		{
+			header($this->headers[$i]);
+		}
+	}
     /**
-    * Sets the headers to prevent caching for the different browsers
-    *
-    * Different browsers support different nocache headers, so several
-    * headers must be sent so that all of them get the point that no
-    * caching should occur
-    *
-    * @return  bool
-    *
-    * @access  public
-    * @since   1.0.000
-    * @static
-    */
-    public function noCache()
-    {
-        header( 'Expires: Wed, 11 Jan 1984 05:00:00 GMT' );
-        header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s' ) . ' GMT' );
-        header("Pragma: no-cache");
-        header('Cache-Control: no-store, no-cache');
-    }
-    public function httpCode($httpCode)
-    {
-        if (null !== $httpCode) {
-            $this->_httpCode = $httpCode;
-            $this->_protocol = $this->request->server('SERVER_PROTOCOL');
-            header($this->_httpCode, $this->_protocol);
-        }
-    }
-    public function redirect($url, $httpCode = 302)
-    {
-        $this->httpCode($httpCode);
-        $this->header("Location: $url");
-    }
-    public function back()
-    {
-        $this->redirect($this->request->server('HTTP_REFERER'));
-        $this->refresh();
-    }
-    public function refresh()
-    {
-        $this->redirect($this->request->server('REQUEST_URI' . '/'));
-    }
+     * @param int $limit Number of requests allowed
+     * @param int $remaining Number of requests remaining
+     * @return void
+     */
+	public function setRateLimitHeader($limit, $remaining)
+	{
+		$this->addHeader('X-RateLimit-Limit: ' . $limit);
+		$this->addHeader('X-RateLimit-Remaining: ' . $remaining);
+	}
+    /**
+     * @param string $value
+     * @return void
+     */
+	public function setEtagHeader($value)
+	{
+		$this->addHeader(sprintf('ETag: "%s"', $value));
+	}
+	public function setCacheHeader($seconds = null)
+	{
+		if(is_numeric($seconds))
+			$this->addHeader('Cache-Control: max-age=' . $seconds . ', must-revalidate');
+		else
+		{
+			$this->addHeader('Cache-Control: no-cache, must-revalidate');
+			$this->addHeader('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
+		}
+	}
+    /**
+     * @param null|int $seconds 3600 seconds = 1 hour
+     * @return void
+     */
+	public function setCacheHeader($seconds = null)
+	{
+		if(is_numeric($seconds))
+		{
+			$this->addHeader('Cache-Control: max-age=' . $seconds . ', must-revalidate');
+		}
+		else
+		{
+			$this->addHeader('Cache-Control: no-cache, must-revalidate');
+			$this->addHeader('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
+		}
+	}
 }
