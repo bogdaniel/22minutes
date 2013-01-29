@@ -1,6 +1,5 @@
 <?php
 namespace Twelve\Http;
-use ArrayIterator;
 /**
  * MIT License
  * ===========
@@ -36,83 +35,89 @@ use ArrayIterator;
  */
 class Request
 {
-	public $post;
-	public $request;
-	public $get;
-	public $cookie;
-	public $server;
+    public $post;
+    public $request;
+    public $get;
+    public $cookie;
+    public $server;
 
-	public function __construct($post = null, $request = null, $get = null, $cookie = null, $server = null)
-	{
-		if(empty($post))
-			$this->post = $_POST;
-		else
-			$this->post = $post;
-		if(empty($request))
-			$this->request = $_REQUEST;
-		else
-			$this->request = $request;
-		if(empty($get))
-			$this->get = $_GET;
-		else
-			$this->get = $get;
-		if(empty($cookie))
-			$this->cookie = $_COOKIE;
-		else
-			$this->cookie = $cookie;
-		if(empty($server))
-			$this->server = $_SERVER;
-		else
-			$this->server = $server;
-	}
+    public function __construct($post = null, $request = null, $get = null, $cookie = null, $server = null)
+    {
+        if(empty($post))
+            $this->post = $_POST;
+        else
+            $this->post = $post;
+        if(empty($request))
+            $this->request = $_REQUEST;
+        else
+            $this->request = $request;
+        if(empty($get))
+            $this->get = $_GET;
+        else
+            $this->get = $get;
+        if(empty($cookie))
+            $this->cookie = $_COOKIE;
+        else
+            $this->cookie = $cookie;
+        if(empty($server))
+            $this->server = $_SERVER;
+        else
+            $this->server = $server;
+    }
     /**
      * [$server description]
      * Get $server params :-)
      * @$param  [string] $param [description]
      * @return [type] [description]
      */
-	public function server($param)
-	{
-		if(!empty($this->server[$param]))
-			return $this->server[$param];
-		else
-			return false;
-	}
-	public function post($param)
-	{
-		if(!empty($this->post[$param]))
-			return $this->post[$param];
-		else
-			return false;
-	}
-	public function request($param)
-	{
-		if(!empty($this->request[$param]))
-			return $this->request[$param];
-		else
-			return false;
-	}
-	public function get($param)
-	{
-		if(!empty($this->get[$param]))
-			return $this->get[$param];
-		else
-			return false;
-	}
-	public function cookie($param)
-	{
-		if(!empty($this->cookie[$param]))
-			return $this->cookie[$param];
-		else
-			return false;
-	}
-	public function userAgent()
-	{
-		if(!$this->server('HTTP_USER_AGENT'))
-			return false;
-		else
-			return $this->server('HTTP_USER_AGENT');
-	}
+    public function server($param)
+    {
+        if(!empty($this->server[$param]))
+
+            return $this->server[$param];
+        else
+            return false;
+    }
+    public function post($param)
+    {
+        if(!empty($this->post[$param]))
+
+            return $this->post[$param];
+        else
+            return false;
+    }
+    public function request($param)
+    {
+        if(!empty($this->request[$param]))
+
+            return $this->request[$param];
+        else
+            return false;
+    }
+    public function get($param)
+    {
+        if(!empty($this->get[$param]))
+
+            return $this->get[$param];
+        else
+            return false;
+    }
+    public function cookie($param)
+    {
+        if(!empty($this->cookie[$param]))
+
+            return $this->cookie[$param];
+        else
+            return false;
+    }
+    public function userAgent()
+    {
+        if(!$this->server('HTTP_USER_AGENT'))
+
+            return false;
+        else
+            return $this->server('HTTP_USER_AGENT');
+    }
     /**
      * [uri description]
      * Returns The Current URI
@@ -120,18 +125,19 @@ class Request
      */
     public function uri()
     {
-    	if(!$this->server('REQUEST_URI'))
-    		return false;
-    	else
-    		return $this->server('REQUEST_URI');
+        if(!$this->server('REQUEST_URI'))
+
+            return false;
+        else
+            return $this->server('REQUEST_URI');
     }
-	public function baseUrl()
+    public function baseUrl()
     {
-    	return sprintf('%s://%s', $this->server('HTTPS') ? 'https' : 'http', $this->server('SERVER_NAME'));
+        return sprintf('%s://%s', $this->server('HTTPS') ? 'https' : 'http', $this->server('SERVER_NAME'));
     }
     public function method()
     {
-    	return $this->server('REQUEST_METHOD');
+        return $this->server('REQUEST_METHOD');
     }
 
     /**
@@ -150,15 +156,16 @@ class Request
     */
     public function getIp($trustProxyHeaders = false)
     {
-    	if(!$trustProxyHeaders)
-    		return $this->server("REMMOTE_ADDR");
-    	if(!$this->server('HTTP_CLIENT_IP'))
-    		$this->ip = $this->server('HTTP_CLIENT_IP');
-    	if(!$this->server('HTTP_X_FORWARDED_FOR'))
-    		$this->ip = $this->server('HTTP_X_FORWARDED_FOR');
-    	else
-    		$this->ip = $this->server('REMOTE_ADDR');
+        if(!$trustProxyHeaders)
 
-    	return $this->ip;
+            return $this->server("REMMOTE_ADDR");
+        if(!$this->server('HTTP_CLIENT_IP'))
+            $this->ip = $this->server('HTTP_CLIENT_IP');
+        if(!$this->server('HTTP_X_FORWARDED_FOR'))
+            $this->ip = $this->server('HTTP_X_FORWARDED_FOR');
+        else
+            $this->ip = $this->server('REMOTE_ADDR');
+
+        return $this->ip;
     }
 }

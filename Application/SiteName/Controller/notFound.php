@@ -1,10 +1,10 @@
 <?php
 namespace SiteName\Controller;
 use Kernel\MVC\Controller\Controller;
-class notFound extends Controller
+class NotFound extends Controller
 {
     public function error()
     {
-    	echo "Not FOund";
+        $this->render($this->twig->render('Error/404.html.twig'));
     }
 }

@@ -1,6 +1,5 @@
 <?php
 namespace Twelve\Cms\Media\Model;
-use Twelve\Utils\Utils;
 class Image
 {
     public $imageSource;

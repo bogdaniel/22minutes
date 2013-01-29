@@ -43,7 +43,7 @@ class Twig_Extension_StringLoader extends Twig_Extension
  */
 function twig_template_from_string(Twig_Environment $env, $template)
 {
-    static $loader;
+    public static $loader;
 
     if (null === $loader) {
         $loader = new Twig_Loader_String();
