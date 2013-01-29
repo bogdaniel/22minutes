@@ -1,0 +1,15 @@
+# humanstxt.org/
+# The humans responsible & technology colophon
+
+# TEAM
+	Bogdan Olteanu -- Main Developer -- olteanu.bogdan@gmail.com
+
+# THANKS
+
+    Adam Boxall
+
+# TECHNOLOGY COLOPHON
+
+    HTML5, CSS3
+    jQuery, Modernizr
+    PHP 5.4,
